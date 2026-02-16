@@ -15,6 +15,7 @@ const GRAMMARS = [
   { pkg: 'tree-sitter-go', file: 'tree-sitter-go.wasm' },
   { pkg: 'tree-sitter-rust', file: 'tree-sitter-rust.wasm' },
   { pkg: 'tree-sitter-java', file: 'tree-sitter-java.wasm' },
+  { pkg: 'tree-sitter-python', file: 'tree-sitter-python.wasm' },
 ];
 
 async function main() {
@@ -27,7 +28,7 @@ async function main() {
       await access(src);
       await copyFile(src, dest);
     } catch {
-      // Grammar package not installed — skip silently
+      console.warn(`archguardian: Could not copy ${file} — ${pkg} support will not be available`);
     }
   }
 }
