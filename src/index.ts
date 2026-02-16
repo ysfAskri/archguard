@@ -5,6 +5,8 @@ export { buildContext } from './core/context.js';
 export { runPipeline } from './core/pipeline.js';
 export { getExitCode, severityAtLeast } from './core/severity.js';
 export { Severity, ExitCode } from './core/types.js';
+export { parseSuppressionDirectives, applySuppression } from './core/suppression.js';
+export { saveBaseline, loadBaseline, filterByBaseline, handleBaseline } from './core/baseline.js';
 
 export { SecurityScanner } from './analyzers/security-scanner.js';
 export { AiSmellDetector } from './analyzers/ai-smell-detector.js';
@@ -24,3 +26,5 @@ export type {
   ParsedFile,
   SupportedLanguage,
 } from './core/types.js';
+export type { SuppressionDirective } from './core/suppression.js';
+export type { BaselineFile, BaselineEntry } from './core/baseline.js';

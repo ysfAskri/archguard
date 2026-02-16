@@ -71,6 +71,8 @@ export function formatSummary(summary: AnalysisSummary, exitCode: ExitCode): str
   if (summary.errors > 0) parts.push(chalk.red(`${summary.errors} error${summary.errors > 1 ? 's' : ''}`));
   if (summary.warnings > 0) parts.push(chalk.yellow(`${summary.warnings} warning${summary.warnings > 1 ? 's' : ''}`));
   if (summary.infos > 0) parts.push(chalk.blue(`${summary.infos} info`));
+  if (summary.suppressedCount) parts.push(chalk.gray(`${summary.suppressedCount} suppressed`));
+  if (summary.baselineSuppressedCount) parts.push(chalk.gray(`${summary.baselineSuppressedCount} baseline`));
   if (parts.length === 0) parts.push(chalk.green('0 issues'));
 
   lines.push(`  ${parts.join(', ')} in ${summary.totalFiles} file${summary.totalFiles !== 1 ? 's' : ''} (${summary.duration.toFixed(0)}ms)`);

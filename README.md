@@ -159,17 +159,47 @@ llm:
   model: gpt-4o-mini
 ```
 
+## Inline Suppression
+
+Silence false positives without excluding entire files:
+
+```js
+// archguard-ignore
+doSomething();                          // suppress all rules on next line
+
+// archguard-ignore security/xss
+el.innerHTML = safe;                    // suppress specific rule on next line
+
+doSomething(); // archguard-ignore-line // suppress all rules on same line
+
+el.innerHTML = safe; // archguard-ignore-line security/xss // specific rule, same line
+```
+
+Python uses `#` instead of `//`. Block comments `/* archguard-ignore */` also work.
+
+## Baseline Mode
+
+Adopt archguardian on an existing project without drowning in warnings:
+
+```bash
+archguardian scan --update-baseline      # save current findings to .archguard-baseline.json
+archguardian scan                         # auto-loads baseline, only shows NEW findings
+archguardian scan --baseline custom.json  # use a custom baseline path
+```
+
+Findings are matched by `ruleId + file + message` (not line number), so baseline entries survive line-number drift when code is edited.
+
 ## CLI
 
 ```
-archguardian init                  Create .archguard.yml + install git hook
-archguardian check [--format]      Analyze staged changes (pre-commit mode)
-archguardian scan  [--format]      Analyze full project
-archguardian fix   [--dry-run]     Auto-fix simple findings
-archguardian learn [--apply]       Infer conventions from codebase
-archguardian rules [--json]        List all 18 built-in rules
-archguardian metrics [--json]      Show findings trend over time
-archguardian dashboard [--port]    Open web dashboard on localhost
+archguardian init                                 Create .archguard.yml + install git hook
+archguardian check [--format] [--update-baseline] Analyze staged changes (pre-commit mode)
+archguardian scan  [--format] [--update-baseline] Analyze full project
+archguardian fix   [--dry-run]                    Auto-fix simple findings
+archguardian learn [--apply]                      Infer conventions from codebase
+archguardian rules [--json]                       List all 18 built-in rules
+archguardian metrics [--json]                     Show findings trend over time
+archguardian dashboard [--port]                   Open web dashboard on localhost
 ```
 
 Formats: `terminal` (default), `json`, `sarif` &mdash; Exit codes: `0` pass, `1` errors, `2` warnings exceeded, `3` config error, `5` timeout.
@@ -221,13 +251,14 @@ Only **changed lines** are checked in pre-commit mode — no noise from existing
 | **v0.2.0** | Shipped | Duplicate detection, layer violations, Python support, `learn`, `rules`, JSON output, metrics |
 | **v0.3.0** | Shipped | Plugin system, SARIF output, GitHub Action, CI pipeline |
 | **v1.0.0** | Shipped | VS Code extension, auto-fix, LLM suggestions, Go/Rust/Java support, dashboard |
+| **v1.1.0** | Shipped | Inline suppression comments, baseline mode for incremental adoption |
 
 ## Contributing
 
 ```bash
 git clone https://github.com/ysfAskri/archguardian.git
 cd archguardian && npm install
-npm test           # 121 tests
+npm test           # 165 tests
 npm run build      # builds to dist/
 ```
 
@@ -237,7 +268,7 @@ npm run build      # builds to dist/
 ```
 src/
 ├── cli/          Commander.js entry + 10 commands + output formatters (terminal, JSON, SARIF)
-├── core/         Pipeline, config loader, diff parser, types
+├── core/         Pipeline, config loader, diff parser, suppression, baseline, types
 ├── parsers/      Tree-sitter WASM manager (TS/JS/Python/Go/Rust/Java) + AST utilities
 ├── analyzers/    Security, AI smells, conventions, duplicates, layer violations
 ├── plugins/      Dynamic plugin loader for external analyzers

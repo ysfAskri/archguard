@@ -35,8 +35,14 @@ program
   .command('check')
   .description('Analyze staged changes (pre-commit mode)')
   .option('--format <format>', 'Output format (terminal, json, or sarif)', 'terminal')
+  .option('--update-baseline', 'Save current findings as the baseline')
+  .option('--baseline <path>', 'Custom baseline file path')
   .action(async (options) => {
-    const code = await checkCommand({ format: options.format });
+    const code = await checkCommand({
+      format: options.format,
+      updateBaseline: options.updateBaseline,
+      baseline: options.baseline,
+    });
     process.exitCode = code;
   });
 
@@ -44,8 +50,14 @@ program
   .command('scan')
   .description('Analyze the full project')
   .option('--format <format>', 'Output format (terminal, json, or sarif)', 'terminal')
+  .option('--update-baseline', 'Save current findings as the baseline')
+  .option('--baseline <path>', 'Custom baseline file path')
   .action(async (options) => {
-    const code = await scanCommand({ format: options.format });
+    const code = await scanCommand({
+      format: options.format,
+      updateBaseline: options.updateBaseline,
+      baseline: options.baseline,
+    });
     process.exitCode = code;
   });
 

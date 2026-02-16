@@ -13,9 +13,12 @@ import { createAnalyzers } from '../analyzer-factory.js';
 import { ExitCode, type FileInfo } from '../../core/types.js';
 import { detectLanguage } from '../../core/diff-parser.js';
 import { recordMetrics } from '../../metrics/tracker.js';
+import { handleBaseline } from '../../core/baseline.js';
 
 export interface ScanOptions {
   format?: 'terminal' | 'json' | 'sarif';
+  updateBaseline?: boolean;
+  baseline?: string;
 }
 
 export async function scanCommand(options: ScanOptions = {}): Promise<number> {
@@ -85,6 +88,15 @@ export async function scanCommand(options: ScanOptions = {}): Promise<number> {
   // Run pipeline
   const analyzers = await createAnalyzers(config);
   const summary = await runPipeline(context, analyzers);
+
+  // Handle baseline (save or filter)
+  const baselineResult = await handleBaseline(summary, projectRoot, 'scan', {
+    updateBaseline: options.updateBaseline,
+    baseline: options.baseline,
+  });
+  if (baselineResult.saved) {
+    console.log(chalk.green(`  Baseline saved to ${baselineResult.savedPath}`));
+  }
 
   // Record metrics
   await recordMetrics(projectRoot, summary, 'scan');

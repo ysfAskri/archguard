@@ -93,6 +93,8 @@ export interface AnalysisSummary {
   infos: number;
   analyzerResults: AnalyzerResult[];
   duration: number;
+  suppressedCount?: number;
+  baselineSuppressedCount?: number;
 }
 
 // ── Analyzer Interface ─────────────────────────────────────────────

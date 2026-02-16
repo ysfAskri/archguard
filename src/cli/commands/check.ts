@@ -12,9 +12,12 @@ import { formatSarif } from '../output/sarif.js';
 import { createAnalyzers } from '../analyzer-factory.js';
 import { ExitCode } from '../../core/types.js';
 import { recordMetrics } from '../../metrics/tracker.js';
+import { handleBaseline } from '../../core/baseline.js';
 
 export interface CheckOptions {
   format?: 'terminal' | 'json' | 'sarif';
+  updateBaseline?: boolean;
+  baseline?: string;
 }
 
 export async function checkCommand(options: CheckOptions = {}): Promise<number> {
@@ -57,6 +60,15 @@ export async function checkCommand(options: CheckOptions = {}): Promise<number> 
   // Run pipeline
   const analyzers = await createAnalyzers(config);
   const summary = await runPipeline(context, analyzers);
+
+  // Handle baseline (save or filter)
+  const baselineResult = await handleBaseline(summary, projectRoot, 'check', {
+    updateBaseline: options.updateBaseline,
+    baseline: options.baseline,
+  });
+  if (baselineResult.saved) {
+    console.log(chalk.green(`  Baseline saved to ${baselineResult.savedPath}`));
+  }
 
   // Record metrics
   await recordMetrics(projectRoot, summary, 'check');

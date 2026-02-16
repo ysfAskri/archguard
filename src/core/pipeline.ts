@@ -2,6 +2,7 @@ import type { AnalysisContext, AnalysisSummary, Analyzer, AnalyzerResult, Findin
 import { withTimeout, timed } from '../utils/performance.js';
 import { logger } from '../utils/logger.js';
 import { enhanceWithLlmSuggestions } from '../llm/index.js';
+import { applySuppression } from './suppression.js';
 
 const ANALYZER_TIMEOUT_MS = 5000;
 
@@ -37,6 +38,10 @@ export async function runPipeline(
 
   let allFindings = deduplicateFindings(analyzerResults.flatMap(r => r.findings));
 
+  // Apply inline suppression directives
+  const suppression = applySuppression(allFindings, context.parsedFiles);
+  allFindings = suppression.findings;
+
   // Enhance findings with LLM suggestions if enabled
   if (context.config.llm.enabled) {
     try {
@@ -56,6 +61,7 @@ export async function runPipeline(
     infos: allFindings.filter(f => f.severity === 'info').length,
     analyzerResults,
     duration,
+    suppressedCount: suppression.suppressedCount || undefined,
   };
 }
 
