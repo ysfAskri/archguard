@@ -182,6 +182,7 @@ export interface ArchGuardConfig {
   languages: SupportedLanguage[];
   include: string[];
   exclude: string[];
+  plugins: string[];
   severity: SeverityConfig;
   analyzers: {
     security: SecurityConfig;

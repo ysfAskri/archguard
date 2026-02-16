@@ -1,6 +1,7 @@
 import type { AnalysisContext, ArchGuardConfig, FileInfo, ParsedFile } from './types.js';
 import { getFileContent } from '../utils/git.js';
 import { parseTypeScript, isTypeScriptFamily } from '../parsers/typescript-parser.js';
+import { parsePython, isPython } from '../parsers/python-parser.js';
 import { isTreeSitterAvailable } from '../parsers/tree-sitter-manager.js';
 import { logger } from '../utils/logger.js';
 import { minimatch } from 'minimatch';
@@ -40,6 +41,9 @@ export async function buildContext(
 
       if (isTypeScriptFamily(file.language)) {
         const parsed = await parseTypeScript(content, file.path, file.language);
+        parsedFiles.push(parsed);
+      } else if (isPython(file.language)) {
+        const parsed = await parsePython(content, file.path);
         parsedFiles.push(parsed);
       }
     } catch (err) {

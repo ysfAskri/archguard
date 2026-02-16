@@ -154,9 +154,9 @@ Only **changed lines** are checked in pre-commit mode — no noise from existing
 ## Contributing
 
 ```bash
-git clone https://github.com/ysfAskri/archguard.git
+git clone https://github.com/ysfAskri/archguardian.git
 cd archguard && npm install
-npm test           # 38 tests
+npm test           # 72 tests
 npm run build      # builds to dist/
 ```
 

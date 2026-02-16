@@ -19,6 +19,7 @@
     "test:watch": "vitest",
     "lint": "eslint src/",
     "typecheck": "tsc --noEmit",
+    "postinstall": "node scripts/postinstall.js",
     "prepublishOnly": "npm run build"
   },
   "keywords": [
@@ -37,7 +38,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ysfAskri/archguard"
+    "url": "https://github.com/ysfAskri/archguardian"
   },
   "engines": {
     "node": ">=18.0.0"

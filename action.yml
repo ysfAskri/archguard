@@ -1,0 +1,28 @@
+name: 'Architecture Guardian'
+description: 'Run archguardian to check for security issues, AI code smells, and convention violations'
+inputs:
+  config:
+    description: 'Path to .archguard.yml config file'
+    required: false
+    default: '.archguard.yml'
+  format:
+    description: 'Output format (terminal, json, sarif)'
+    required: false
+    default: 'terminal'
+  fail-on:
+    description: 'Minimum severity to fail the check (error, warning, info)'
+    required: false
+    default: 'error'
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+    - name: Install archguardian
+      shell: bash
+      run: npm install -g archguardian
+    - name: Run archguardian scan
+      shell: bash
+      run: archguardian scan --format ${{ inputs.format }}

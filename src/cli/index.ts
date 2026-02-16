@@ -3,6 +3,8 @@ import { initCommand } from './commands/init.js';
 import { checkCommand } from './commands/check.js';
 import { scanCommand } from './commands/scan.js';
 import { learnCommand } from './commands/learn.js';
+import { rulesCommand } from './commands/rules.js';
+import { metricsCommand } from './commands/metrics.js';
 import { setLogLevel, LogLevel } from '../utils/logger.js';
 
 const program = new Command();
@@ -30,24 +32,45 @@ program
 program
   .command('check')
   .description('Analyze staged changes (pre-commit mode)')
-  .action(async () => {
-    const code = await checkCommand();
+  .option('--format <format>', 'Output format (terminal, json, or sarif)', 'terminal')
+  .action(async (options) => {
+    const code = await checkCommand({ format: options.format });
     process.exitCode = code;
   });
 
 program
   .command('scan')
   .description('Analyze the full project')
-  .action(async () => {
-    const code = await scanCommand();
+  .option('--format <format>', 'Output format (terminal, json, or sarif)', 'terminal')
+  .action(async (options) => {
+    const code = await scanCommand({ format: options.format });
     process.exitCode = code;
   });
 
 program
   .command('learn')
-  .description('Scan codebase and infer conventions (v0.2.0)')
-  .action(async () => {
-    const code = await learnCommand();
+  .description('Scan codebase and infer naming conventions statistically')
+  .option('--apply', 'Write inferred conventions to .archguard.yml')
+  .action(async (options) => {
+    const code = await learnCommand(options);
+    process.exitCode = code;
+  });
+
+program
+  .command('rules')
+  .description('List all available rules and their status')
+  .option('--json', 'Output rules as JSON')
+  .action(async (options) => {
+    const code = await rulesCommand({ json: options.json });
+    process.exitCode = code;
+  });
+
+program
+  .command('metrics')
+  .description('Show metrics from recent scan/check runs')
+  .option('--json', 'Output metrics as JSON')
+  .action(async (options) => {
+    const code = await metricsCommand({ json: options.json });
     process.exitCode = code;
   });
 

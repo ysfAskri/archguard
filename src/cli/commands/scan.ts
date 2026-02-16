@@ -7,11 +7,19 @@ import { runPipeline } from '../../core/pipeline.js';
 import { getExitCode } from '../../core/severity.js';
 import { isGitRepo, getGitRoot, getAllTrackedFiles } from '../../utils/git.js';
 import { formatSummary } from '../output/terminal.js';
+import { formatJson } from '../output/json.js';
+import { formatSarif } from '../output/sarif.js';
 import { createAnalyzers } from '../analyzer-factory.js';
 import { ExitCode, type FileInfo } from '../../core/types.js';
 import { detectLanguage } from '../../core/diff-parser.js';
+import { recordMetrics } from '../../metrics/tracker.js';
 
-export async function scanCommand(): Promise<number> {
+export interface ScanOptions {
+  format?: 'terminal' | 'json' | 'sarif';
+}
+
+export async function scanCommand(options: ScanOptions = {}): Promise<number> {
+  const format = options.format ?? 'terminal';
   const cwd = process.cwd();
 
   if (!await isGitRepo(cwd)) {
@@ -75,14 +83,23 @@ export async function scanCommand(): Promise<number> {
   const context = await buildContext(files, config, projectRoot);
 
   // Run pipeline
-  const analyzers = createAnalyzers(config);
+  const analyzers = await createAnalyzers(config);
   const summary = await runPipeline(context, analyzers);
+
+  // Record metrics
+  await recordMetrics(projectRoot, summary, 'scan');
 
   // Determine exit code
   const exitCode = getExitCode(summary, config.severity);
 
   // Print results
-  console.log(formatSummary(summary, exitCode));
+  if (format === 'json') {
+    console.log(formatJson(summary));
+  } else if (format === 'sarif') {
+    console.log(formatSarif(summary));
+  } else {
+    console.log(formatSummary(summary, exitCode));
+  }
 
   return exitCode;
 }

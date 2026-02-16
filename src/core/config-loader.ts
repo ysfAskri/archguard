@@ -13,6 +13,7 @@ const ConfigSchema = z.object({
   languages: z.array(LanguageEnum).default(['typescript', 'javascript', 'tsx', 'jsx']),
   include: z.array(z.string()).default(['**/*']),
   exclude: z.array(z.string()).default(['**/node_modules/**', '**/dist/**', '**/*.test.ts', '**/*.spec.ts']),
+  plugins: z.array(z.string()).default([]),
   severity: z.object({
     failOn: SeverityEnum.default(Severity.Error),
     maxWarnings: z.number().default(20),
