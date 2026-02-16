@@ -14,7 +14,7 @@ const program = new Command();
 program
   .name('archguardian')
   .description('Stop AI from slowly destroying your codebase.')
-  .version('0.1.0')
+  .version('1.0.0')
   .option('--verbose', 'Enable debug logging')
   .hook('preAction', (thisCommand) => {
     if (thisCommand.opts().verbose) {

@@ -133,7 +133,7 @@ export function formatSarif(summary: AnalysisSummary): string {
         tool: {
           driver: {
             name: 'archguardian',
-            version: '0.1.0',
+            version: '1.0.0',
             rules: Array.from(rulesMap.values()),
           },
         },

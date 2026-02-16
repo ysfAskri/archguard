@@ -46,7 +46,7 @@ export function formatJson(summary: AnalysisSummary): string {
   }
 
   const output: JsonOutput = {
-    version: '0.1.0',
+    version: '1.0.0',
     findings,
     summary: {
       totalFiles: summary.totalFiles,
