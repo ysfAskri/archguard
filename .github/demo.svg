@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 520" fill="none">
+  <style>
+    .t { font-family: 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', monospace; font-size: 13px; }
+    .gray { fill: #6b7280; }
+    .white { fill: #e5e7eb; }
+    .red { fill: #ef4444; }
+    .yellow { fill: #eab308; }
+    .green { fill: #22c55e; }
+    .cyan { fill: #06b6d4; }
+    .dim { fill: #4b5563; }
+    .bold { font-weight: 600; }
+  </style>
+  <!-- Window chrome -->
+  <rect width="820" height="520" rx="10" fill="#1e1e2e"/>
+  <rect width="820" height="36" rx="10" fill="#181825"/>
+  <rect y="26" width="820" height="10" fill="#181825"/>
+  <circle cx="20" cy="18" r="6" fill="#f38ba8"/>
+  <circle cx="40" cy="18" r="6" fill="#f9e2af"/>
+  <circle cx="60" cy="18" r="6" fill="#a6e3a1"/>
+  <text x="410" y="22" text-anchor="middle" class="t dim" font-size="12">archguardian scan</text>
+
+  <!-- Content -->
+  <text x="20" y="65" class="t dim">$ npx archguardian scan</text>
+
+  <text x="20" y="100" class="t white bold"> Architecture Guardian</text>
+  <text x="20" y="120" class="t dim">────────────────────────────────────────────────────</text>
+
+  <text x="20" y="150" class="t white bold">  src/api/users.ts</text>
+  <text x="20" y="172" class="t red">  x Possible hardcoded AWS Access Key detected</text>
+  <text x="20" y="190" class="t dim">    src/api/users.ts:9 [security/hardcoded-secret]</text>
+  <text x="20" y="208" class="t cyan">    suggestion: Move secrets to environment variables</text>
+
+  <text x="20" y="238" class="t red">  x Potential SQL injection in template literal</text>
+  <text x="20" y="256" class="t dim">    src/api/users.ts:15 [security/sql-injection]</text>
+  <text x="20" y="274" class="t cyan">    suggestion: Use parameterized queries instead</text>
+
+  <text x="20" y="306" class="t white bold">  src/components/Dashboard.tsx</text>
+  <text x="20" y="328" class="t yellow">  ! Comment-to-code ratio: 62% (threshold: 40%)</text>
+  <text x="20" y="346" class="t dim">    src/components/Dashboard.tsx:1 [ai-smell/excessive-comments]</text>
+  <text x="20" y="364" class="t cyan">    suggestion: Remove comments that restate the code</text>
+
+  <text x="20" y="394" class="t yellow">  ! Unused import: 'useCallback'</text>
+  <text x="20" y="412" class="t dim">    src/components/Dashboard.tsx:1 [ai-smell/unused-import]</text>
+
+  <text x="20" y="444" class="t dim">────────────────────────────────────────────────────</text>
+  <text x="20" y="466" class="t white">  </text>
+  <text x="20" y="466" class="t red">2 errors</text>
+  <text x="95" y="466" class="t dim">,</text>
+  <text x="103" y="466" class="t yellow">2 warnings</text>
+  <text x="198" y="466" class="t dim">in 8 files (312ms)</text>
+
+  <text x="20" y="496" class="t red bold">  Commit blocked. Fix the issues above and try again.</text>
+</svg>

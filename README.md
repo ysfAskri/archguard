@@ -1,467 +1,186 @@
-<div align="center">
+<p align="center">
+  <img src=".github/banner.svg" alt="archguardian" width="600">
+</p>
 
-<!-- HERO SECTION -->
-<br>
-
-```
-    ╔═══════════════════════════════════════════════════════════════╗
-    ║                                                               ║
-    ║        █████╗ ██████╗  ██████╗██╗  ██╗ ██████╗ ██╗   ██╗     ║
-    ║       ██╔══██╗██╔══██╗██╔════╝██║  ██║██╔════╝ ██║   ██║     ║
-    ║       ███████║██████╔╝██║     ███████║██║  ███╗██║   ██║     ║
-    ║       ██╔══██║██╔══██╗██║     ██╔══██║██║   ██║██║   ██║     ║
-    ║       ██║  ██║██║  ██║╚██████╗██║  ██║╚██████╔╝╚██████╔╝     ║
-    ║       ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝ ╚═════╝  ╚═════╝     ║
-    ║                    A R D                                      ║
-    ║               ─── ARCHITECTURE GUARDIAN ───                    ║
-    ║                                                               ║
-    ╚═══════════════════════════════════════════════════════════════╝
-```
-
-<br>
-
-### 🛡️ Stop AI from slowly destroying your codebase.
-
-<br>
-
-[![npm](https://img.shields.io/npm/v/archguardian?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://www.npmjs.com/package/archguardian)
-[![license](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge&logo=opensourceinitiative&logoColor=white)](LICENSE)
-[![node](https://img.shields.io/badge/node-%3E%3D18-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org)
-[![typescript](https://img.shields.io/badge/TypeScript-5.6+-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen?style=for-the-badge&logo=github&logoColor=white)](https://github.com/ysfAskri/archguard/pulls)
-
-<br>
-
-**Tool-agnostic CLI + git pre-commit hook** that catches architectural violations,<br>
-duplication, convention drift, security issues, and AI-specific code smells<br>
-**— before code reaches the repo.**
-
-<br>
-
-Works with &nbsp;
-<img src="https://img.shields.io/badge/Cursor-000?style=flat-square&logo=cursor&logoColor=white" alt="Cursor" />
-&nbsp;
-<img src="https://img.shields.io/badge/Claude_Code-CC785C?style=flat-square&logo=anthropic&logoColor=white" alt="Claude Code" />
-&nbsp;
-<img src="https://img.shields.io/badge/Copilot-000?style=flat-square&logo=githubcopilot&logoColor=white" alt="Copilot" />
-&nbsp;
-<img src="https://img.shields.io/badge/Manual_Coding-444?style=flat-square&logo=visualstudiocode&logoColor=white" alt="Manual" />
-
-<br><br>
-
-[**Getting Started**](#-getting-started) · [**Features**](#-what-it-catches) · [**Config**](#%EF%B8%8F-configuration) · [**Roadmap**](#-roadmap) · [**Contributing**](#-contributing)
-
-<br>
+<p align="center">
+  <a href="https://www.npmjs.com/package/archguardian"><img src="https://img.shields.io/npm/v/archguardian?style=flat-square&color=6366f1&label=npm" alt="npm"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" alt="license"></a>
+  <a href="https://nodejs.org"><img src="https://img.shields.io/badge/node-%E2%89%A518-339933?style=flat-square" alt="node"></a>
+</p>
 
 ---
 
-</div>
-
-<br>
-
-## 🤔 The Problem
-
-AI coding tools generate code **10x faster** — but at a hidden cost:
-
-<table>
-<tr>
-<td width="33%" align="center">
-
-### 📈 8×
-**more duplication**<br>
-<sub>Copy-paste patterns that<br>compound over time</sub>
-
-</td>
-<td width="33%" align="center">
-
-### 🔓 45%
-**more vulnerabilities**<br>
-<sub>Hardcoded secrets, SQL injection,<br>XSS vectors in generated code</sub>
-
-</td>
-<td width="33%" align="center">
-
-### 😤 66%
-**developer frustration**<br>
-<sub>"AI solutions that are almost right,<br>but not quite" — Stack Overflow 2025</sub>
-
-</td>
-</tr>
-</table>
-
-> **Forrester predicts 75% of companies will face moderate-to-high technical debt severity in 2026.**
->
-> No tool currently prevents these problems at commit time. **Until now.**
-
-<br>
-
-## ⚡ Getting Started
-
-Three commands. Thirty seconds. Done.
+**archguardian** is a pre-commit hook and CLI that catches security issues, AI-generated code smells, and naming convention violations in TypeScript and JavaScript — before they reach your repo.
 
 ```bash
-# 1️⃣  Initialize in your project
-npx archguardian init
-
-# 2️⃣  Scan your entire codebase
-npx archguardian scan
-
-# 3️⃣  That's it — staged changes are now checked automatically before every commit
-git commit -m "feat: new feature"   # archguardian runs automatically 🛡️
+npx archguardian init    # adds config + git hook
+npx archguardian scan    # scans full project
+git commit               # hook runs automatically
 ```
-
-<details>
-<summary><b>📸 See it in action</b></summary>
-<br>
-
-```
-  Scanning project...
-  Found 27 files to analyze...
-
- Architecture Guardian
-────────────────────────────────────────────────────────────
-
-  src/api/users.ts
-  ✗ Possible hardcoded AWS Access Key detected
-    src/api/users.ts:12 [security/hardcoded-secret]
-    suggestion: Move secrets to environment variables or a secrets manager
-
-  ✗ Potential SQL injection: SQL keywords in template literal with interpolation
-    src/api/users.ts:25 [security/sql-injection]
-    suggestion: Use parameterized queries instead of string interpolation
-
-  src/components/Dashboard.tsx
-  ⚠ Excessive comment-to-code ratio: 62% comments (threshold: 40%)
-    src/components/Dashboard.tsx:1 [ai-smell/excessive-comments]
-    suggestion: AI-generated code often has too many obvious comments.
-
-  ⚠ Unused import: 'useCallback'
-    src/components/Dashboard.tsx:1 [ai-smell/unused-import]
-    suggestion: AI tools often add imports that are never used.
-
-  src/utils/helpers.ts
-  ⚠ Function 'ProcessData' should use camelCase naming
-    src/utils/helpers.ts:8 [convention/function-naming]
-    suggestion: Rename to match camelCase convention
-
-────────────────────────────────────────────────────────────
-  2 errors, 3 warnings in 12 files (342ms)
-
-  Commit blocked. Fix the issues above and try again.
-```
-
-</details>
 
 <br>
 
-## 🔍 What It Catches
+<p align="center">
+  <img src=".github/demo.svg" alt="archguardian demo" width="780">
+</p>
 
 <br>
+
+## Why
+
+AI coding tools generate code fast but introduce patterns that compound into debt:
+
+- **Hardcoded secrets** that slip through review
+- **Excessive comments** that restate what the code already says
+- **Unused imports** from autocomplete suggestions that were never cleaned up
+- **`as any` casts** and non-null assertions used to silence the type checker
+- **SQL injection and XSS vectors** in generated snippets
+- **Inconsistent naming** across files written by different tools
+
+archguardian runs in <1 second on typical diffs. It uses [tree-sitter](https://tree-sitter.github.io/) WASM for real AST parsing — not regex.
+
+## What it checks
 
 <table>
 <tr>
-<td width="50%" valign="top">
+<td valign="top" width="33%">
 
-### 🔒 Security Scanner
-
-| Threat | Detection |
-|:--|:--|
-| **Hardcoded Secrets** | API keys, tokens, passwords — 11 regex patterns covering AWS, GitHub, Slack, Stripe, Google, JWTs, database URLs |
-| **SQL Injection** | Template literals and string concatenation with SQL keywords |
-| **XSS Vectors** | `innerHTML`, `outerHTML`, `dangerouslySetInnerHTML`, `document.write` |
-| **Code Execution** | `eval()` and `Function()` constructor usage |
-| **ReDoS** | Unsafe regex with nested quantifiers |
-| **Custom Rules** | Add your own patterns via config |
+**Security**
+- Hardcoded secrets (11 patterns: AWS, GitHub, Slack, Stripe, Google, JWTs, DB URLs)
+- SQL injection via template literals and string concat
+- XSS: `innerHTML`, `dangerouslySetInnerHTML`, `document.write`
+- `eval()` / `Function()` usage
+- ReDoS-prone regex
+- Custom patterns via config
 
 </td>
-<td width="50%" valign="top">
+<td valign="top" width="33%">
 
-### 🤖 AI Smell Detector
-
-| Smell | What it Flags |
-|:--|:--|
-| **Excessive Comments** | Comment-to-code ratio above threshold (default 40%) |
-| **Unused Imports** | Declared but never referenced in AST |
-| **Verbose Errors** | Catch blocks 2× larger than try blocks |
-| **Copy-Paste** | Repeated code blocks within the same diff |
-| **Type Hacks** | `as any` assertions, excessive `!` non-null operators |
+**AI smells**
+- Comment-to-code ratio above threshold
+- Unused imports (AST-verified)
+- Catch blocks larger than try blocks
+- Duplicate code blocks in the same diff
+- `as any` type assertions
+- Excessive `!` non-null operators
 
 </td>
-</tr>
-<tr>
-<td width="50%" valign="top">
+<td valign="top" width="33%">
 
-### 📏 Convention Enforcer
-
-| Target | Convention |
-|:--|:--|
-| **Functions** | `camelCase` |
-| **Classes / Interfaces** | `PascalCase` |
-| **Constants** | `UPPER_SNAKE` |
-| **Files** | `kebab-case` |
-
-All fully configurable per project.
-
-</td>
-<td width="50%" valign="top">
-
-### 🔮 Coming Soon
-
-| Feature | Version |
-|:--|:--|
-| **Duplicate Detection** | v0.2.0 |
-| **Layer Violations** | v0.2.0 |
-| **Auto-Learn Conventions** | v0.2.0 |
-| **Plugin System** | v0.3.0 |
-| **LLM Integration** | v0.3.0 |
+**Conventions**
+- Functions: `camelCase`
+- Classes / interfaces: `PascalCase`
+- Constants: `UPPER_SNAKE`
+- Files: `kebab-case`
+- All configurable per project
 
 </td>
 </tr>
 </table>
 
-<br>
+## Configuration
 
-## 🏗️ How It Works
-
-```
-                    ┌─────────────────────────────────────────────────────┐
-                    │              ARCHITECTURE GUARDIAN                   │
-                    └─────────────────────────────────────────────────────┘
-
-  git commit        ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐
- ─────────────────▶ │  Parse   │──▶ │  Filter  │──▶ │   AST    │──▶ │ Analyze  │
-  (pre-commit)      │  Diff    │    │  Files   │    │  Parse   │    │ (parallel)│
-                    └──────────┘    └──────────┘    └──────────┘    └────┬─────┘
-                                                                         │
-                    ┌──────────────────────────────────────────────────────┘
-                    │
-                    ▼
-              ┌──────────┐    ┌──────────┐         ✅ Pass → commit proceeds
-              │Aggregate │──▶ │  Report  │────────▶
-              │& Dedup   │    │  Output  │         ❌ Fail → commit blocked
-              └──────────┘    └──────────┘
-```
-
-<table>
-<tr>
-<td>🧩 <b>AST-Powered</b></td>
-<td>Uses <code>web-tree-sitter</code> (WASM) for real parsing — not regex hacks. Zero native compilation.</td>
-</tr>
-<tr>
-<td>⚡ <b>Parallel</b></td>
-<td>All analyzers run concurrently with <code>Promise.allSettled</code> and 5s individual timeouts.</td>
-</tr>
-<tr>
-<td>🎯 <b>Diff-Aware</b></td>
-<td>Only checks <i>changed lines</i> in pre-commit mode — no noise from existing code.</td>
-</tr>
-<tr>
-<td>🔌 <b>Pluggable</b></td>
-<td>Clean analyzer interface — bring your own rules (plugin system in v0.3.0).</td>
-</tr>
-</table>
-
-<br>
-
-## ⚙️ Configuration
-
-Run `archguardian init` or create `.archguard.yml` manually:
+`archguardian init` creates `.archguard.yml` in your project root:
 
 ```yaml
-# .archguard.yml
 version: 1
 languages: [typescript, javascript, tsx, jsx]
 include: ["src/**"]
-exclude: ["**/*.test.ts", "**/*.spec.ts", "**/node_modules/**"]
+exclude: ["**/*.test.ts", "**/node_modules/**"]
 
 severity:
-  failOn: error          # Block commits on: error | warning | info
-  maxWarnings: 20        # Fail if warnings exceed this count
+  failOn: error       # error | warning | info
+  maxWarnings: 20
 
 analyzers:
   security:
     enabled: true
     severity: error
-    # customPatterns:    # Add your own regex patterns
-    #   - name: "Internal API"
-    #     pattern: "api\\.internal\\."
-    #     severity: warning
-
   aiSmells:
     enabled: true
     severity: warning
-    commentRatio: 0.4    # Flag files with >40% comments
-
+    commentRatio: 0.4
   conventions:
     enabled: true
-    severity: warning
     naming:
       functions: camelCase
       classes: PascalCase
       constants: UPPER_SNAKE
       files: kebab-case
-    autoLearn: false      # v0.2.0: infer from existing code
 ```
 
-<br>
-
-## 🖥️ CLI Reference
+## CLI
 
 ```
-Usage: archguardian [options] [command]
-
-Stop AI from slowly destroying your codebase.
-
-Options:
-  -V, --version   output the version number
-  --verbose        enable debug logging
-  -h, --help      display help for command
-
-Commands:
-  init            create config + install git hook
-  check           analyze staged changes (pre-commit mode)
-  scan            analyze the full project
-  learn           scan codebase and infer conventions (v0.2.0)
+archguardian init       Create .archguard.yml + install git hook
+archguardian check      Analyze staged changes (pre-commit mode)
+archguardian scan       Analyze full project
+archguardian learn      Infer conventions from codebase (v0.2.0)
 ```
 
-<details>
-<summary><b>Exit Codes</b></summary>
-<br>
+Exit codes: `0` pass, `1` errors, `2` warnings exceeded, `3` config error, `5` timeout.
 
-| Code | Meaning | When |
-|:----:|:--------|:-----|
-| `0` | ✅ Success | No issues found |
-| `1` | ❌ Errors found | Violations at or above `failOn` severity |
-| `2` | ⚠️ Warnings exceeded | More warnings than `maxWarnings` |
-| `3` | 🔧 Config error | Invalid `.archguard.yml` |
-| `5` | ⏱️ Timeout | Analysis exceeded time limit |
+## How it works
 
-</details>
+```
+git commit
+    |
+    v
+ Parse staged diff ──> Filter files ──> AST parse (tree-sitter WASM)
+                                              |
+                                              v
+                                    Run analyzers in parallel
+                                     (5s timeout per analyzer)
+                                              |
+                                              v
+                                    Aggregate + deduplicate
+                                              |
+                                    ┌─────────┴─────────┐
+                                    v                     v
+                               0 findings            findings > 0
+                               commit OK             commit blocked
+```
 
-<br>
+Only **changed lines** are checked in pre-commit mode — no noise from existing code.
 
-## ⚡ Performance
+## Roadmap
 
-<table>
-<tr>
-<td align="center"><h3>< 400ms</h3><sub>Typical scan time</sub></td>
-<td align="center"><h3>27 files</h3><sub>Full project parse</sub></td>
-<td align="center"><h3>0</h3><sub>Native dependencies</sub></td>
-<td align="center"><h3>WASM</h3><sub>Tree-sitter grammars</sub></td>
-</tr>
-</table>
+| Version | What's coming |
+|:--------|:--------------|
+| **v0.2.0** | Duplicate detection, layer violation checks, Python support, `archguardian learn`, JSON output |
+| **v0.3.0** | Plugin system, LLM-powered suggestions, SARIF output, GitHub Action |
+| **v1.0.0** | VS Code extension, auto-fix, Go/Rust/Java support |
 
-> **Target: < 5 seconds** for typical diffs (1–10 files, < 500 changed lines).<br>
-> Uses `web-tree-sitter` WASM — runs everywhere Node.js runs, zero compilation step.
-
-<br>
-
-## 🗺️ Roadmap
-
-<table>
-<tr>
-<th width="120">Version</th>
-<th>Features</th>
-<th width="100">Status</th>
-</tr>
-<tr>
-<td><b>v0.1.0</b></td>
-<td>Security scanner · AI smell detector · Convention enforcer · CLI · Git hooks · TypeScript & JavaScript</td>
-<td>✅ Released</td>
-</tr>
-<tr>
-<td><b>v0.2.0</b></td>
-<td>Duplicate detection · Layer violation checks · Python support · <code>archguardian learn</code> · JSON output</td>
-<td>🚧 Next</td>
-</tr>
-<tr>
-<td><b>v0.3.0</b></td>
-<td>Plugin system · LLM-powered suggestions · SARIF output · GitHub Action</td>
-<td>📋 Planned</td>
-</tr>
-<tr>
-<td><b>v1.0.0</b></td>
-<td>VS Code extension · Auto-fix · Dashboard · Go / Rust / Java support · Metrics tracking</td>
-<td>🔮 Future</td>
-</tr>
-</table>
-
-<br>
-
-## 🧑‍💻 Contributing
+## Contributing
 
 ```bash
-# Clone and set up
 git clone https://github.com/ysfAskri/archguard.git
-cd archguard
-npm install
-
-# Build
-npm run build
-
-# Run tests
-npm test
-
-# Scan itself (dogfooding!)
-node dist/cli/index.js scan
+cd archguard && npm install
+npm test           # 38 tests
+npm run build      # builds to dist/
 ```
 
 <details>
-<summary><b>Project Structure</b></summary>
-<br>
+<summary>Project structure</summary>
 
 ```
-archguard/
-├── src/
-│   ├── cli/                  # Commander.js CLI + commands
-│   │   ├── commands/         # init, check, scan, learn
-│   │   └── output/           # Terminal reporter
-│   ├── core/                 # Pipeline, config, types, diff parsing
-│   ├── parsers/              # Tree-sitter WASM manager + AST utils
-│   ├── analyzers/            # Security, AI smells, conventions
-│   ├── rules/                # Rule interface + built-in rules
-│   ├── hooks/                # Git hook installer (direct + Husky)
-│   └── utils/                # Git ops, logging, performance
-├── wasm/                     # Bundled tree-sitter WASM grammars
-├── tests/
-│   ├── unit/                 # Per-module tests
-│   ├── integration/          # CLI + git hook E2E tests
-│   └── fixtures/             # Sample code with violations
-├── .archguard.yml            # Dogfooding config
-├── tsup.config.ts            # Build config
-└── vitest.config.ts          # Test config
+src/
+├── cli/          Commander.js entry + init, check, scan commands
+├── core/         Pipeline, config loader, diff parser, types
+├── parsers/      Tree-sitter WASM manager + AST utilities
+├── analyzers/    Security scanner, AI smell detector, convention enforcer
+├── hooks/        Git hook installer (direct + Husky)
+└── utils/        Git operations, logging, perf timing
 ```
 
 </details>
 
-<br>
+## License
 
-## 📄 License
-
-[MIT](LICENSE) — use it, fork it, ship it.
-
-<br>
+[MIT](LICENSE)
 
 ---
 
-<div align="center">
-
-<br>
-
-**Built by [Youssef ASKRI](https://github.com/ysfAskri)**
-
-<br>
-
-⭐ **Star this repo** if archguardian saved your codebase from AI-generated chaos.
-
-<br>
-
-<sub>
-
-[Report Bug](https://github.com/ysfAskri/archguard/issues) · [Request Feature](https://github.com/ysfAskri/archguard/issues) · [Discussions](https://github.com/ysfAskri/archguard/discussions)
-
-</sub>
-
-<br><br>
-
-</div>
+<p align="center">
+  <sub>Built by <a href="https://github.com/ysfAskri">Youssef ASKRI</a></sub>
+</p>
