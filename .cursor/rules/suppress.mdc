@@ -1,0 +1,15 @@
+---
+description: Add archguard-ignore suppression comments to silence false positives
+globs: "**/*"
+alwaysApply: false
+---
+
+# Suppress archguardian findings
+
+When the user wants to suppress a false positive:
+
+1. Prefer rule-specific over blanket: `// archguard-ignore-line security/xss` over `// archguard-ignore-line`
+2. Same-line for short lines, next-line for long lines
+3. Python uses `#`, block comments `/* */` also work
+4. After adding, re-scan to confirm suppression works
+5. If many false positives of the same type, suggest disabling the rule in `.archguard.yml` instead

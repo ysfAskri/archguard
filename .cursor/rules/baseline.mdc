@@ -1,0 +1,17 @@
+---
+description: Create or update an archguardian baseline for incremental adoption
+globs: "**/*"
+alwaysApply: false
+---
+
+# Manage archguardian baseline
+
+When the user asks about baseline:
+
+- **Create/Update**: `npx archguardian scan --update-baseline --format json`
+- **Custom path**: add `--baseline <path>`
+- **Status**: read `.archguard-baseline.json`, summarize contents, run scan to compare
+- **Clear**: confirm with user, then delete `.archguard-baseline.json`
+
+Baseline matching uses `ruleId + file + message` (not line numbers) — survives code edits.
+Recommend committing `.archguard-baseline.json` to version control.

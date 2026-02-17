@@ -1,0 +1,16 @@
+---
+description: Analyze staged git changes with archguardian before committing
+globs: "**/*"
+alwaysApply: false
+---
+
+# Check staged changes with archguardian
+
+When the user asks to check staged changes or prepare for a commit:
+
+1. Verify staged changes exist with `git diff --cached --stat`
+2. Run `npx archguardian check --format json`
+3. Present findings focused on the staged files
+4. For each finding: show file, line, rule, explain the issue, offer to fix
+5. If all checks pass, confirm the user is clear to commit
+6. For intentional exceptions, suggest `// archguard-ignore-line <rule>`

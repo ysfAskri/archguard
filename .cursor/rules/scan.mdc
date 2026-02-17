@@ -1,0 +1,16 @@
+---
+description: Run a full archguardian project scan and analyze results
+globs: "**/*"
+alwaysApply: false
+---
+
+# Scan project with archguardian
+
+When the user asks to scan or analyze the project:
+
+1. Run `npx archguardian scan --format json`
+2. Parse findings grouped by severity (errors > warnings > info)
+3. For each finding explain what the rule checks, show the code, suggest a fix
+4. If many findings exist, summarize top issues first
+5. Offer to auto-fix (`npx archguardian fix`) or suppress false positives
+6. If first-time adoption with many findings, suggest `npx archguardian scan --update-baseline`

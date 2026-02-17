@@ -1,0 +1,18 @@
+---
+description: Auto-fix archguardian findings like unused imports and naming violations
+globs: "**/*"
+alwaysApply: false
+---
+
+# Auto-fix with archguardian
+
+When the user asks to fix findings:
+
+1. Preview with `npx archguardian fix --dry-run --format json`
+2. Show what will change (file, line, description)
+3. Ask for confirmation
+4. Apply with `npx archguardian fix`
+5. Re-scan to verify fixes: `npx archguardian scan --format json`
+6. Report before/after comparison
+
+Supported fixes: unused import removal, naming convention renames.
