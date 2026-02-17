@@ -6,3 +6,6 @@ Run a full archguardian project scan and help the user understand findings.
 4. If many findings, summarize top issues first
 5. Offer `/fix` for auto-fixable issues, `/suppress` for false positives
 6. If first-time adoption, suggest `/baseline` to snapshot current state
+
+Use `--quality-gate` to enforce thresholds and fail on violations.
+Use `--ci github` for GitHub Actions integration with inline annotations.

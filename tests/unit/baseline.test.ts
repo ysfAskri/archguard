@@ -38,11 +38,12 @@ describe('saveBaseline', () => {
     expect(content.generatedBy).toBe('scan');
     expect(content.generatedAt).toBeTruthy();
     expect(content.findings).toHaveLength(2);
-    expect(content.findings[0]).toEqual({
+    expect(content.findings[0]).toMatchObject({
       ruleId: 'security/xss',
       file: 'src/foo.ts',
       message: 'XSS risk: innerHTML assignment',
     });
+    expect(content.findings[0].contentHash).toBeTruthy();
   });
 
   it('saves to custom path', async () => {

@@ -36,8 +36,11 @@ Auto-fix simple findings detected by archguardian.
 
 - **Unused imports**: Removes import statements for unused identifiers
 - **Naming conventions**: Renames identifiers to match configured conventions (camelCase, PascalCase, etc.)
+- **AI-powered fixes**: Use `--ai` to enable LLM-powered fixes for any rule, including security issues and architecture violations that don't have built-in fixers
 
 ## Tips
 
 - Always preview with `--dry-run` first.
-- For findings that can't be auto-fixed (security issues, architecture violations), suggest manual fixes or suppression comments.
+- Use `--ai` to enable LLM-powered fixes for any rule, including those without built-in fixers.
+- Use `--verify` to re-analyze after fixing to confirm the fix actually resolved the issue.
+- For findings that can't be auto-fixed (and `--ai` is not available), suggest manual fixes or suppression comments.

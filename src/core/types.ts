@@ -13,6 +13,7 @@ export enum ExitCode {
   ErrorsFound = 1,
   WarningsExceeded = 2,
   ConfigError = 3,
+  QualityGateFailure = 4,
   Timeout = 5,
 }
 
@@ -95,6 +96,7 @@ export interface AnalysisSummary {
   duration: number;
   suppressedCount?: number;
   baselineSuppressedCount?: number;
+  memorySuppressedCount?: number;
 }
 
 // ── Analyzer Interface ─────────────────────────────────────────────
@@ -131,6 +133,13 @@ export interface AiSmellsConfig {
   commentRatio: number;
 }
 
+export interface PerLanguageNaming {
+  functions?: NamingConvention;
+  classes?: NamingConvention;
+  constants?: NamingConvention;
+  files?: NamingConvention;
+}
+
 export interface ConventionsConfig {
   enabled: boolean;
   severity: Severity;
@@ -141,6 +150,7 @@ export interface ConventionsConfig {
     files: NamingConvention;
   };
   autoLearn: boolean;
+  perLanguage?: Record<string, PerLanguageNaming>;
 }
 
 export interface DuplicatesConfig {
@@ -179,6 +189,113 @@ export interface SeverityConfig {
   maxWarnings: number;
 }
 
+// ── Quality Gate Config ─────────────────────────────────────────
+
+export interface QualityGateConfig {
+  maxNewErrors: number;
+  maxNewWarnings: number;
+  maxTotal: number;
+}
+
+// ── Memory Config ──────────────────────────────────────────────
+
+export interface MemoryConfig {
+  enabled: boolean;
+  autoLearn: boolean;
+}
+
+// ── Impact Config ──────────────────────────────────────────────
+
+export interface ImpactConfig {
+  enabled: boolean;
+  severity: Severity;
+  depth: number;
+}
+
+// ── Taint Config ───────────────────────────────────────────────
+
+export interface TaintConfig {
+  enabled: boolean;
+  severity: Severity;
+  crossFile?: boolean;
+}
+
+// ── Complexity Config ─────────────────────────────────────────
+
+export interface ComplexityConfig {
+  enabled: boolean;
+  severity: Severity;
+  maxCyclomatic: number;
+  maxCognitive: number;
+}
+
+// ── IaC Config ────────────────────────────────────────────────
+
+export interface IacConfig {
+  enabled: boolean;
+  severity: Severity;
+  dockerfile?: boolean;
+  kubernetes?: boolean;
+  actions?: boolean;
+}
+
+// ── Dead Code Config ──────────────────────────────────────────
+
+export interface DeadCodeConfig {
+  enabled: boolean;
+  severity: Severity;
+  entryPoints?: string[];
+}
+
+// ── Coverage Config ───────────────────────────────────────────
+
+export interface CoverageConfig {
+  enabled: boolean;
+  severity: Severity;
+  reportPath: string;
+  minCoverage: number;
+  minNewCodeCoverage: number;
+}
+
+// ── License Config ────────────────────────────────────────────
+
+export interface LicenseConfig {
+  enabled: boolean;
+  severity: Severity;
+  allowed: string[];
+  denied: string[];
+}
+
+// ── Dependency Scanner Config ──────────────────────────────────
+
+export interface DependencyConfig {
+  enabled: boolean;
+  severity: Severity;
+}
+
+// ── Fixes Config ───────────────────────────────────────────────
+
+export interface FixesConfig {
+  ai?: {
+    enabled: boolean;
+    verify: boolean;
+  };
+}
+
+// ── Rules Config ───────────────────────────────────────────────
+
+export interface RulesConfig {
+  file?: string;
+  inline?: string[];
+  astgrep?: string;
+}
+
+// ── Dashboard Config ───────────────────────────────────────────
+
+export interface DashboardConfig {
+  detailedHistory: boolean;
+}
+
 export interface ArchGuardConfig {
   version: number;
   languages: SupportedLanguage[];
@@ -192,6 +309,20 @@ export interface ArchGuardConfig {
     conventions: ConventionsConfig;
     duplicates: DuplicatesConfig;
     architecture: ArchitectureConfig;
+    impact?: ImpactConfig;
+    taint?: TaintConfig;
+    dependencies?: DependencyConfig;
+    complexity?: ComplexityConfig;
+    iac?: IacConfig;
+    deadCode?: DeadCodeConfig;
+    coverage?: CoverageConfig;
+    licenses?: LicenseConfig;
   };
   llm: LlmConfig;
+  qualityGate?: QualityGateConfig;
+  memory?: MemoryConfig;
+  fixes?: FixesConfig;
+  rules?: RulesConfig;
+  dashboard?: DashboardConfig;
+  workspaces?: Record<string, Partial<ArchGuardConfig>>;
 }

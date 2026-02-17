@@ -43,6 +43,45 @@ const BUILT_IN_RULES: Array<{ ruleId: string; analyzer: string; defaultSeverity:
 
   // Architecture rules
   { ruleId: 'architecture/layer-violation', analyzer: 'architecture', defaultSeverity: Severity.Error, configKey: 'architecture' },
+
+  // Impact rules
+  { ruleId: 'impact/downstream-consumers', analyzer: 'impact', defaultSeverity: Severity.Info, configKey: 'security' },
+
+  // Taint rules
+  { ruleId: 'taint/sql-injection', analyzer: 'taint', defaultSeverity: Severity.Error, configKey: 'security' },
+  { ruleId: 'taint/xss', analyzer: 'taint', defaultSeverity: Severity.Error, configKey: 'security' },
+  { ruleId: 'taint/command-injection', analyzer: 'taint', defaultSeverity: Severity.Error, configKey: 'security' },
+  { ruleId: 'taint/path-traversal', analyzer: 'taint', defaultSeverity: Severity.Error, configKey: 'security' },
+
+  // Dependency rules
+  { ruleId: 'dependency/known-vulnerability', analyzer: 'dependencies', defaultSeverity: Severity.Error, configKey: 'security' },
+
+  // Complexity rules
+  { ruleId: 'complexity/cyclomatic-too-high', analyzer: 'complexity', defaultSeverity: Severity.Warning, configKey: 'security' },
+  { ruleId: 'complexity/cognitive-too-high', analyzer: 'complexity', defaultSeverity: Severity.Warning, configKey: 'security' },
+
+  // IaC rules
+  { ruleId: 'iac/docker-run-as-root', analyzer: 'iac', defaultSeverity: Severity.Warning, configKey: 'security' },
+  { ruleId: 'iac/docker-latest-tag', analyzer: 'iac', defaultSeverity: Severity.Warning, configKey: 'security' },
+  { ruleId: 'iac/docker-curl-pipe-bash', analyzer: 'iac', defaultSeverity: Severity.Warning, configKey: 'security' },
+  { ruleId: 'iac/docker-no-healthcheck', analyzer: 'iac', defaultSeverity: Severity.Warning, configKey: 'security' },
+  { ruleId: 'iac/docker-exposed-secrets', analyzer: 'iac', defaultSeverity: Severity.Warning, configKey: 'security' },
+  { ruleId: 'iac/docker-add-vs-copy', analyzer: 'iac', defaultSeverity: Severity.Warning, configKey: 'security' },
+  { ruleId: 'iac/k8s-privileged', analyzer: 'iac', defaultSeverity: Severity.Warning, configKey: 'security' },
+  { ruleId: 'iac/k8s-no-resource-limits', analyzer: 'iac', defaultSeverity: Severity.Warning, configKey: 'security' },
+  { ruleId: 'iac/k8s-latest-tag', analyzer: 'iac', defaultSeverity: Severity.Warning, configKey: 'security' },
+  { ruleId: 'iac/gha-script-injection', analyzer: 'iac', defaultSeverity: Severity.Warning, configKey: 'security' },
+  { ruleId: 'iac/gha-mutable-action-ref', analyzer: 'iac', defaultSeverity: Severity.Warning, configKey: 'security' },
+
+  // Dead code rules
+  { ruleId: 'dead-code/unused-export', analyzer: 'dead-code', defaultSeverity: Severity.Warning, configKey: 'security' },
+
+  // Coverage rules
+  { ruleId: 'coverage/below-threshold', analyzer: 'coverage', defaultSeverity: Severity.Warning, configKey: 'security' },
+  { ruleId: 'coverage/uncovered-new-code', analyzer: 'coverage', defaultSeverity: Severity.Warning, configKey: 'security' },
+
+  // License rules
+  { ruleId: 'license/incompatible-license', analyzer: 'licenses', defaultSeverity: Severity.Warning, configKey: 'security' },
 ];
 
 function resolveRules(config: ArchGuardConfig): RuleEntry[] {
@@ -51,8 +90,8 @@ function resolveRules(config: ArchGuardConfig): RuleEntry[] {
     return {
       ruleId: rule.ruleId,
       analyzer: rule.analyzer,
-      severity: analyzerConfig.severity ?? rule.defaultSeverity,
-      enabled: analyzerConfig.enabled,
+      severity: analyzerConfig?.severity ?? rule.defaultSeverity,
+      enabled: analyzerConfig?.enabled ?? false,
     };
   });
 }

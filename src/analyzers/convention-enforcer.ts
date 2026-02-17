@@ -1,8 +1,9 @@
-import type { AnalysisContext, Finding, NamingConvention, ParsedFile } from '../core/types.js';
+import type { AnalysisContext, Finding, NamingConvention, ParsedFile, SupportedLanguage, PerLanguageNaming } from '../core/types.js';
 import { Severity } from '../core/types.js';
 import { BaseAnalyzer } from './base-analyzer.js';
 import { walk } from '../parsers/ast-utils.js';
 import { basename } from 'node:path';
+import { getLanguageConventions, isTypeScriptLike } from '../parsers/language-conventions.js';
 
 const CONVENTION_PATTERNS: Record<NamingConvention, RegExp> = {
   camelCase: /^[a-z][a-zA-Z0-9]*$/,
@@ -40,17 +41,99 @@ export class ConventionEnforcer extends BaseAnalyzer {
 
     for (const file of context.parsedFiles) {
       const changedLines = this.getChangedLines(context, file.path);
-      findings.push(...this.checkFunctionNaming(file, changedLines, config.naming.functions));
-      findings.push(...this.checkClassNaming(file, changedLines, config.naming.classes));
-      findings.push(...this.checkConstantNaming(file, changedLines, config.naming.constants));
+      const lang = file.language;
+      const langNaming = this.resolveNaming(lang, config.naming, config.perLanguage);
+
+      if (isTypeScriptLike(lang)) {
+        findings.push(...this.checkFunctionNaming(file, changedLines, langNaming.functions));
+        findings.push(...this.checkClassNaming(file, changedLines, langNaming.classes));
+        findings.push(...this.checkConstantNaming(file, changedLines, langNaming.constants));
+      } else {
+        findings.push(...this.checkMultiLangFunctionNaming(file, changedLines, langNaming.functions, lang));
+        findings.push(...this.checkMultiLangClassNaming(file, changedLines, langNaming.classes, lang));
+      }
     }
 
     // Check file naming for all changed files
     for (const file of context.files) {
       if (file.status === 'added') {
-        findings.push(...this.checkFileNaming(file.path, config.naming.files));
+        const lang = file.language;
+        const langNaming = lang ? this.resolveNaming(lang, config.naming, config.perLanguage) : config.naming;
+        findings.push(...this.checkFileNaming(file.path, langNaming.files));
       }
     }
+
+    return findings;
+  }
+
+  private resolveNaming(
+    language: SupportedLanguage,
+    defaultNaming: { functions: NamingConvention; classes: NamingConvention; constants: NamingConvention; files: NamingConvention },
+    perLanguage?: Record<string, PerLanguageNaming>,
+  ): { functions: NamingConvention; classes: NamingConvention; constants: NamingConvention; files: NamingConvention } {
+    const langDefaults = getLanguageConventions(language).defaultNaming;
+    const langOverride = perLanguage?.[language];
+    return {
+      functions: langOverride?.functions ?? (isTypeScriptLike(language) ? defaultNaming.functions : langDefaults.functions),
+      classes: langOverride?.classes ?? (isTypeScriptLike(language) ? defaultNaming.classes : langDefaults.classes),
+      constants: langOverride?.constants ?? (isTypeScriptLike(language) ? defaultNaming.constants : langDefaults.constants),
+      files: langOverride?.files ?? (isTypeScriptLike(language) ? defaultNaming.files : langDefaults.files),
+    };
+  }
+
+  private checkMultiLangFunctionNaming(file: ParsedFile, changedLines: Set<number>, convention: NamingConvention, language: SupportedLanguage): Finding[] {
+    const findings: Finding[] = [];
+    const langConv = getLanguageConventions(language);
+
+    walk(file.tree.root(), (node) => {
+      if (!langConv.functionNodeTypes.includes(node.kind() as string)) return;
+      const nameNode = node.field('name');
+      if (!nameNode) return;
+      const lineNum = nameNode.range().start.line + 1;
+      if (!changedLines.has(lineNum)) return;
+      const name = nameNode.text();
+      if (IGNORED_NAMES.has(name) || name.startsWith('_')) return;
+      // Go: exported functions start with uppercase (PascalCase), unexported with lowercase
+      if (language === 'go' && /^[A-Z]/.test(name)) return;
+      if (name === 'constructor' || name === '__init__' || name === 'main') return;
+
+      if (!matchesConvention(name, convention)) {
+        findings.push(this.createFinding(
+          'convention/function-naming',
+          file.path,
+          lineNum,
+          `Function '${name}' should use ${formatConventionName(convention)} naming`,
+          { suggestion: `Rename to match ${convention} convention` },
+        ));
+      }
+    });
+
+    return findings;
+  }
+
+  private checkMultiLangClassNaming(file: ParsedFile, changedLines: Set<number>, convention: NamingConvention, language: SupportedLanguage): Finding[] {
+    const findings: Finding[] = [];
+    const langConv = getLanguageConventions(language);
+
+    walk(file.tree.root(), (node) => {
+      if (!langConv.classNodeTypes.includes(node.kind() as string)) return;
+      const nameNode = node.field('name');
+      if (!nameNode) return;
+      const lineNum = nameNode.range().start.line + 1;
+      if (!changedLines.has(lineNum)) return;
+      const name = nameNode.text();
+      if (IGNORED_NAMES.has(name)) return;
+
+      if (!matchesConvention(name, convention)) {
+        findings.push(this.createFinding(
+          'convention/class-naming',
+          file.path,
+          lineNum,
+          `Type '${name}' should use ${formatConventionName(convention)} naming`,
+          { suggestion: `Rename to match ${convention} convention` },
+        ));
+      }
+    });
 
     return findings;
   }

@@ -37,6 +37,7 @@ interface SarifResult {
 interface SarifRuleDescriptor {
   id: string;
   shortDescription: SarifMessage;
+  helpUri?: string;
 }
 
 interface SarifToolDriver {
@@ -90,6 +91,7 @@ export function formatSarif(summary: AnalysisSummary): string {
       rulesMap.set(finding.ruleId, {
         id: finding.ruleId,
         shortDescription: { text: finding.message },
+        helpUri: `https://github.com/archguardian/archguardian#${finding.ruleId.replace(/\//g, '-')}`,
       });
     }
   }

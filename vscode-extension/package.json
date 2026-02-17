@@ -9,7 +9,11 @@
   "activationEvents": ["onLanguage:typescript", "onLanguage:javascript", "onLanguage:typescriptreact", "onLanguage:javascriptreact", "onLanguage:python", "onLanguage:go", "onLanguage:rust", "onLanguage:java"],
   "main": "./out/extension.js",
   "contributes": {
-    "commands": [{ "command": "archguardian.scan", "title": "Archguardian: Scan Current File" }],
+    "commands": [
+      { "command": "archguardian.scan", "title": "Archguardian: Scan Current File" },
+      { "command": "archguardian.fixFinding", "title": "Archguardian: Fix Finding with AI" },
+      { "command": "archguardian.suppressFinding", "title": "Archguardian: Suppress Finding" }
+    ],
     "configuration": {
       "title": "Architecture Guardian",
       "properties": {

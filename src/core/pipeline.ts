@@ -3,6 +3,7 @@ import { withTimeout, timed } from '../utils/performance.js';
 import { logger } from '../utils/logger.js';
 import { enhanceWithLlmSuggestions } from '../llm/index.js';
 import { applySuppression } from './suppression.js';
+import { loadMemory, applyMemory } from './memory.js';
 
 const ANALYZER_TIMEOUT_MS = 5000;
 
@@ -42,6 +43,21 @@ export async function runPipeline(
   const suppression = applySuppression(allFindings, context.parsedFiles);
   allFindings = suppression.findings;
 
+  // Apply memory filtering if enabled
+  let memorySuppressedCount: number | undefined;
+  if (context.config.memory?.enabled) {
+    try {
+      const memory = await loadMemory(context.projectRoot);
+      const memoryResult = applyMemory(allFindings, memory);
+      allFindings = memoryResult.findings;
+      if (memoryResult.memorySuppressedCount > 0) {
+        memorySuppressedCount = memoryResult.memorySuppressedCount;
+      }
+    } catch (err) {
+      logger.warn(`Memory filtering failed: ${(err as Error).message}`);
+    }
+  }
+
   // Enhance findings with LLM suggestions if enabled
   if (context.config.llm.enabled) {
     try {
@@ -62,6 +78,7 @@ export async function runPipeline(
     analyzerResults,
     duration,
     suppressedCount: suppression.suppressedCount || undefined,
+    memorySuppressedCount,
   };
 }
 
@@ -86,6 +103,16 @@ function isAnalyzerEnabled(name: string, context: AnalysisContext): boolean {
     case 'conventions': return config.conventions.enabled;
     case 'duplicates': return config.duplicates.enabled;
     case 'architecture': return config.architecture.enabled;
+    case 'impact': return config.impact?.enabled ?? false;
+    case 'taint': return config.taint?.enabled ?? false;
+    case 'dependencies': return config.dependencies?.enabled ?? false;
+    case 'complexity': return config.complexity?.enabled ?? false;
+    case 'iac': return config.iac?.enabled ?? false;
+    case 'dead-code': return config.deadCode?.enabled ?? false;
+    case 'coverage': return config.coverage?.enabled ?? false;
+    case 'structural-rules': return true;
+    case 'licenses': return config.licenses?.enabled ?? false;
+    case 'natural-language': return true;
     default: return true;
   }
 }

@@ -29,3 +29,6 @@ Run a full project scan using archguardian and help the user understand and reso
 - If there are suppressed or baseline counts in the output, mention them.
 - Offer to run `/fix` for auto-fixable issues or `/suppress` for false positives.
 - Offer to run `/baseline` if this is a first-time adoption with many existing findings.
+- Use `--quality-gate` to enforce quality thresholds and get a pass/fail result (see `/gate`).
+- Use `--ci github` in CI pipelines to output findings as GitHub Actions annotations.
+- Use `--post-to-pr` to post findings as inline review comments on a GitHub PR (requires GITHUB_TOKEN).

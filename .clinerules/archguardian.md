@@ -36,14 +36,17 @@ src/
 ## CLI commands
 
 ```
-archguardian init                                 Create config + install git hook
-archguardian check [--format] [--update-baseline] Analyze staged changes
-archguardian scan  [--format] [--update-baseline] Analyze full project
-archguardian fix   [--dry-run]                    Auto-fix simple findings
-archguardian learn [--apply]                      Infer conventions from codebase
-archguardian rules [--json]                       List all built-in rules
-archguardian metrics [--json]                     Show findings trend
-archguardian dashboard [--port]                   Open web dashboard
+archguardian init                                                          Create config + install git hook
+archguardian check [--format] [--update-baseline] [--quality-gate] [--ci github]  Analyze staged changes
+archguardian scan  [--format] [--update-baseline] [--quality-gate] [--ci github]  Analyze full project
+archguardian fix   [--dry-run] [--ai] [--verify]                           Auto-fix simple findings
+archguardian learn [--apply]                                               Infer conventions from codebase
+archguardian rules [--json]                                                List all built-in rules
+archguardian metrics [--json]                                              Show findings trend
+archguardian dashboard [--port]                                            Open web dashboard
+archguardian dismiss <ruleId> [--pattern] [--file]                         Dismiss finding pattern from future scans
+archguardian summarize [--format mermaid|text]                             Generate visual change summary
+archguardian diagram  [--format mermaid|text] [--scope]                    Generate architecture diagram
 ```
 
 ## Common workflows
@@ -68,3 +71,46 @@ Matching uses `ruleId + file + message` (not line numbers) — survives code edi
 doSomething(); // archguard-ignore-line — suppress all rules on same line
 ```
 Python uses `#`, block comments `/* */` also work. Prefer rule-specific over blanket suppression.
+
+## New workflows
+
+### Dismiss findings
+Run `npx archguardian dismiss <ruleId> --pattern "message"` or `--file "src/**/*.ts"`. Dismissed patterns stored in `.archguard/memory.json`.
+
+### Quality gates
+Run `npx archguardian scan --quality-gate`. Enforces thresholds: `maxNewErrors`, `maxNewWarnings`, `maxTotal` from `.archguard.yml`.
+
+### Impact analysis
+Run scan to see `impact/downstream-consumers` findings showing which files are affected by changes.
+
+### Visual summaries
+Run `npx archguardian summarize --format mermaid` for staged change impact diagrams.
+Run `npx archguardian diagram --format mermaid --scope src/` for architecture diagrams.
+
+### Dependency scanning
+Scan detects `dependency/known-vulnerability` findings using the OSV database for package.json/go.mod/Cargo.toml/pom.xml.
+
+### AI-powered fixes
+Run `npx archguardian fix --ai --verify` to use LLM for fixing any finding, with automatic verification.
+
+## Additional capabilities
+
+### New analyzers
+
+- **Complexity** — Analyzes cyclomatic and cognitive complexity of functions. Enable with `analyzers.complexity.enabled: true`. Default thresholds: cyclomatic 15, cognitive 20. Findings use `complexity/*` rule IDs.
+- **Dead code** — Detects unused exports that may indicate dead code. Enable with `analyzers.deadCode.enabled: true`. Configure `entryPoints` for legitimate entry files. Findings use `dead-code/*` rule IDs.
+- **IaC** — Scans Dockerfiles, Kubernetes manifests, and GitHub Actions for security misconfigurations. Enable with `analyzers.iac.enabled: true`. Findings use `iac/*` rule IDs.
+- **Coverage** — Integrates existing test coverage reports (lcov, Istanbul JSON) to flag uncovered code. Enable with `analyzers.coverage.enabled: true`. Configure `reportPath` and `minCoverage` (default 80%). Findings use `coverage/*` rule IDs.
+- **Licenses** — Checks dependency licenses against allowed/denied lists with glob pattern matching. Enable with `analyzers.licenses.enabled: true`. Fetches license data from npm registry and crates.io. Findings use `license/*` rule IDs.
+
+### New commands
+
+- **SBOM** — Generate a Software Bill of Materials. Run `npx archguardian sbom --format cyclonedx` (or `--format spdx`). Supports npm, Go, Rust, and Java dependency manifests. Outputs CycloneDX 1.5 or SPDX 2.3 with PURLs.
+
+### New flags
+
+- `--post-to-pr` — Available on `check`, `scan`, and `summarize` commands. Posts findings as inline review comments on a GitHub PR. Requires `GITHUB_TOKEN` environment variable.
+
+### Workspace config support
+
+- Monorepo support via `workspaces` config with glob-based overrides in `.archguard.yml`. Each workspace can have its own analyzer settings and thresholds.

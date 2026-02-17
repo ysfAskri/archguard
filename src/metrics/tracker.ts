@@ -96,6 +96,14 @@ export async function recordMetrics(
     // Write back
     await writeFile(filePath, JSON.stringify(trimmed, null, 2) + '\n', 'utf-8');
     logger.debug(`Metrics recorded: ${entry.totalFindings} findings in ${entry.duration}ms`);
+
+    // Save detailed run history if enabled
+    try {
+      const { saveDetailedRun } = await import('./history.js');
+      await saveDetailedRun(projectRoot, summary, command);
+    } catch {
+      // Detailed history is optional
+    }
   } catch (err) {
     // Metrics recording should never break the main flow
     logger.warn(`Failed to record metrics: ${(err as Error).message}`);

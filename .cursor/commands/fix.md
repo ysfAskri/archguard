@@ -9,3 +9,6 @@ Auto-fix archguardian findings (unused imports, naming violations).
 
 Supported fixes: unused import removal, naming convention renames.
 For non-auto-fixable issues, suggest manual fixes or suppression.
+
+Use `--ai` to enable LLM-powered fixes for complex issues beyond simple auto-fixes.
+Use `--verify` to re-scan after fixing and confirm all issues are resolved.

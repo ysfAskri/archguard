@@ -7,3 +7,6 @@ Analyze staged git changes with archguardian before committing.
 5. For each finding: show file, line, rule, explain, offer to fix
 6. If all checks pass, confirm clear to commit
 7. For intentional exceptions, suggest `// archguard-ignore-line <rule-id>`
+
+Use `--quality-gate` to enforce thresholds and fail on violations.
+Use `--ci github` for GitHub Actions integration with inline annotations.

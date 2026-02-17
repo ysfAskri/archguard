@@ -5,7 +5,7 @@ tools:
   - terminal
 ---
 
-Run `npx archguardian scan --format json` and analyze the results.
+Run `npx archguardian scan --format json --quality-gate --ci github` and analyze the results.
 
 1. Parse findings grouped by severity (errors > warnings > info)
 2. For each finding: explain the rule, show the code, suggest a fix

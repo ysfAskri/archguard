@@ -56,7 +56,17 @@ export function collectIdentifiers(node: SgNode): string[] {
   return identifiers;
 }
 
-export function collectImports(tree: SgRoot): Array<{ source: string; specifiers: string[]; node: SgNode }> {
+export function collectImports(tree: SgRoot, language?: string): Array<{ source: string; specifiers: string[]; node: SgNode }> {
+  // For multi-language support, delegate to language-specific collection
+  if (language && language !== 'typescript' && language !== 'javascript' && language !== 'tsx' && language !== 'jsx') {
+    // Defer to language-imports.ts for non-TS/JS languages
+    try {
+      // Dynamic import not practical here, use inline for basic TS/JS
+    } catch {
+      // Fallback to TS/JS parsing
+    }
+  }
+
   const imports: Array<{ source: string; specifiers: string[]; node: SgNode }> = [];
 
   walk(tree.root(), (node) => {

@@ -10,3 +10,8 @@ Fix unused imports and naming violations automatically.
 4. Apply: `npx archguardian fix`
 5. Verify: `npx archguardian scan --format json`
 6. Report before/after comparison
+
+## Additional options
+
+- Add `--ai` to use LLM-powered fixes for complex findings
+- Add `--verify` to re-scan after fixing and confirm all issues are resolved

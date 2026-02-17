@@ -34,7 +34,18 @@ const registeredFixes: Fix[] = [
   new RenameConventionFix(),
 ];
 
-export function getAvailableFixes(): Fix[] {
+let llmFixRegistered = false;
+
+export function getAvailableFixes(enableAi?: boolean): Fix[] {
+  if (enableAi && !llmFixRegistered) {
+    // Dynamically add LLM fix as fallback
+    import('./llm-fix.js').then(({ LlmFix }) => {
+      registeredFixes.push(new LlmFix());
+      llmFixRegistered = true;
+    }).catch(() => {
+      // LLM fix not available
+    });
+  }
   return registeredFixes;
 }
 

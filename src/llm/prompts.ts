@@ -9,6 +9,47 @@ export function buildPrompt(finding: Finding, codeSnippet: string): string {
   return strategy(finding, codeSnippet);
 }
 
+/**
+ * Build a prompt for generating a complete fix for a finding.
+ * Used by the LLM auto-fix feature.
+ */
+export function buildFixPrompt(finding: Finding, fullFileContent: string): string {
+  return [
+    'You are a code repair expert. Fix the following issue in the code.',
+    '',
+    `Issue: "${finding.message}" (rule: ${finding.ruleId}) at line ${finding.line}`,
+    '',
+    'Full file content:',
+    '```',
+    fullFileContent,
+    '```',
+    '',
+    'Return ONLY the complete fixed file content in a code block.',
+    'Do not add explanations. Do not change anything except what is needed to fix the issue.',
+  ].join('\n');
+}
+
+/**
+ * Build a prompt for natural language rule evaluation.
+ */
+export function buildNaturalLanguagePrompt(rules: string[], fileContent: string, filePath: string): string {
+  const rulesText = rules.map((r, i) => `${i + 1}. ${r}`).join('\n');
+  return [
+    'You are a code reviewer evaluating custom rules. For each rule that is violated in the code below, report a finding.',
+    '',
+    'Rules:',
+    rulesText,
+    '',
+    `File: ${filePath}`,
+    '```',
+    fileContent,
+    '```',
+    '',
+    'Return a JSON array of findings. Each finding must have: { "ruleIndex": number, "line": number, "message": string }',
+    'Return [] if no rules are violated. Return ONLY the JSON array, no explanation.',
+  ].join('\n');
+}
+
 type PromptBuilder = (finding: Finding, codeSnippet: string) => string;
 
 const aiSmellsPrompt: PromptBuilder = (finding, codeSnippet) => {

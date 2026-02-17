@@ -13,6 +13,8 @@ import { applyFixes, getAvailableFixes } from '../../fixes/index.js';
 export interface FixOptions {
   dryRun?: boolean;
   format?: 'terminal' | 'json';
+  ai?: boolean;
+  verify?: boolean;
 }
 
 /**

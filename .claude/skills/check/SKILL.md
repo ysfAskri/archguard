@@ -36,3 +36,6 @@ Analyze only the staged git changes to catch issues before they are committed.
 - This is the same analysis that runs in the pre-commit hook.
 - If the user wants to commit despite warnings, suggest using `// archguard-ignore-line` for intentional exceptions.
 - Offer `/fix --dry-run` to preview auto-fixes before applying.
+- Use `--quality-gate` to enforce quality thresholds and get a pass/fail result (see `/gate`).
+- Use `--ci github` in CI pipelines to output findings as GitHub Actions annotations.
+- Use `--post-to-pr` to post findings as inline review comments on a GitHub PR (requires GITHUB_TOKEN).

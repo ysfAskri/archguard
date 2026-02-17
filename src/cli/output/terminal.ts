@@ -73,6 +73,7 @@ export function formatSummary(summary: AnalysisSummary, exitCode: ExitCode): str
   if (summary.infos > 0) parts.push(chalk.blue(`${summary.infos} info`));
   if (summary.suppressedCount) parts.push(chalk.gray(`${summary.suppressedCount} suppressed`));
   if (summary.baselineSuppressedCount) parts.push(chalk.gray(`${summary.baselineSuppressedCount} baseline`));
+  if (summary.memorySuppressedCount) parts.push(chalk.gray(`${summary.memorySuppressedCount} memory`));
   if (parts.length === 0) parts.push(chalk.green('0 issues'));
 
   lines.push(`  ${parts.join(', ')} in ${summary.totalFiles} file${summary.totalFiles !== 1 ? 's' : ''} (${summary.duration.toFixed(0)}ms)`);

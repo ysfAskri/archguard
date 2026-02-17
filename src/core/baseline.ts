@@ -1,5 +1,6 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { createHash } from 'node:crypto';
 import type { Finding, AnalysisSummary } from './types.js';
 import { logger } from '../utils/logger.js';
 
@@ -9,6 +10,7 @@ export interface BaselineEntry {
   ruleId: string;
   file: string;
   message: string;
+  contentHash?: string;
 }
 
 export interface BaselineFile {
@@ -16,6 +18,11 @@ export interface BaselineFile {
   generatedAt: string;
   generatedBy: string;
   findings: BaselineEntry[];
+}
+
+export function contentFingerprint(ruleId: string, file: string, codeSnippet?: string): string {
+  const normalized = (codeSnippet ?? '').replace(/\s+/g, ' ').trim();
+  return createHash('sha256').update(`${ruleId}\0${file}\0${normalized}`).digest('hex');
 }
 
 function fingerprint(f: { ruleId: string; file: string; message: string }): string {
@@ -38,6 +45,7 @@ export async function saveBaseline(
       ruleId: f.ruleId,
       file: f.file,
       message: f.message,
+      contentHash: contentFingerprint(f.ruleId, f.file, f.codeSnippet),
     })),
   };
 
@@ -71,12 +79,26 @@ export function filterByBaseline(
   findings: Finding[],
   baseline: BaselineFile,
 ): { findings: Finding[]; baselineSuppressedCount: number } {
-  const baselineSet = new Set(baseline.findings.map(fingerprint));
+  const baselineMessageSet = new Set(baseline.findings.map(fingerprint));
+  const baselineHashSet = new Set(
+    baseline.findings
+      .filter(b => b.contentHash)
+      .map(b => b.contentHash!),
+  );
 
   let baselineSuppressedCount = 0;
   const filtered = findings.filter(f => {
+    // Try content hash match first (more robust across line changes)
+    if (baselineHashSet.size > 0) {
+      const hash = contentFingerprint(f.ruleId, f.file, f.codeSnippet);
+      if (baselineHashSet.has(hash)) {
+        baselineSuppressedCount++;
+        return false;
+      }
+    }
+    // Fall back to message-based match
     const fp = fingerprint({ ruleId: f.ruleId, file: f.file, message: f.message });
-    if (baselineSet.has(fp)) {
+    if (baselineMessageSet.has(fp)) {
       baselineSuppressedCount++;
       return false;
     }

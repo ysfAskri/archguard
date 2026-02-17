@@ -1,5 +1,7 @@
 import * as vscode from "vscode";
 import { runArchguardian, Finding, ScanResult } from "./runner";
+import { ArchguardianCodeActionProvider } from "./code-actions";
+import { createFileWatcher } from "./file-watcher";
 import * as path from "path";
 
 let diagnosticCollection: vscode.DiagnosticCollection;
@@ -31,6 +33,52 @@ export function activate(context: vscode.ExtensionContext): void {
     () => executeScan()
   );
   context.subscriptions.push(scanCommand);
+
+  // Command: fix finding via AI
+  const fixCommand = vscode.commands.registerCommand(
+    "archguardian.fixFinding",
+    async (uri: vscode.Uri, diagnostic: vscode.Diagnostic) => {
+      const terminal = vscode.window.createTerminal("Archguardian Fix");
+      terminal.sendText(`archguardian fix --ai`);
+      terminal.show();
+    }
+  );
+  context.subscriptions.push(fixCommand);
+
+  // Command: suppress finding with inline comment
+  const suppressCommand = vscode.commands.registerCommand(
+    "archguardian.suppressFinding",
+    async (uri: vscode.Uri, diagnostic: vscode.Diagnostic) => {
+      const editor = await vscode.window.showTextDocument(uri);
+      const line = diagnostic.range.start.line;
+      const lineText = editor.document.lineAt(line).text;
+      const indent = lineText.match(/^\s*/)?.[0] ?? "";
+      await editor.edit((editBuilder) => {
+        editBuilder.insert(
+          new vscode.Position(line, 0),
+          `${indent}// archguard-ignore-line ${diagnostic.code}\n`
+        );
+      });
+    }
+  );
+  context.subscriptions.push(suppressCommand);
+
+  // Register code action provider
+  const codeActionProvider = vscode.languages.registerCodeActionsProvider(
+    [
+      { language: "typescript" }, { language: "javascript" },
+      { language: "typescriptreact" }, { language: "javascriptreact" },
+      { language: "python" }, { language: "go" },
+      { language: "rust" }, { language: "java" },
+    ],
+    new ArchguardianCodeActionProvider(),
+    { providedCodeActionKinds: ArchguardianCodeActionProvider.providedCodeActionKinds }
+  );
+  context.subscriptions.push(codeActionProvider);
+
+  // File watcher for analysis on file change
+  const fileWatcher = createFileWatcher(() => executeScan());
+  context.subscriptions.push(fileWatcher);
 
   // Auto-scan on save
   const onSaveListener = vscode.workspace.onDidSaveTextDocument(() => {

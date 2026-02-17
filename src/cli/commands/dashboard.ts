@@ -88,6 +88,83 @@ export async function dashboardCommand(options: DashboardOptions = {}): Promise<
       return;
     }
 
+    if (url === '/api/history') {
+      try {
+        const { listRuns } = await import('../../metrics/history.js');
+        const runs = await listRuns(projectRoot);
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' });
+        res.end(JSON.stringify(runs));
+      } catch {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end('[]');
+      }
+      return;
+    }
+
+    if (url.startsWith('/api/history/')) {
+      const runId = url.replace('/api/history/', '');
+      try {
+        const { loadDetailedRun } = await import('../../metrics/history.js');
+        const run = await loadDetailedRun(projectRoot, runId);
+        if (run) {
+          res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' });
+          res.end(JSON.stringify(run));
+        } else {
+          res.writeHead(404, { 'Content-Type': 'application/json' });
+          res.end('{"error":"not found"}');
+        }
+      } catch {
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end('{"error":"server error"}');
+      }
+      return;
+    }
+
+    if (url === '/api/rules-frequency') {
+      try {
+        const { listRuns, loadDetailedRun } = await import('../../metrics/history.js');
+        const runs = await listRuns(projectRoot);
+        const frequency: Record<string, number> = {};
+        for (const run of runs.slice(0, 20)) {
+          const detail = await loadDetailedRun(projectRoot, run.id);
+          if (detail?.byRule) {
+            for (const [rule, count] of Object.entries(detail.byRule)) {
+              frequency[rule] = (frequency[rule] ?? 0) + count;
+            }
+          }
+        }
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' });
+        res.end(JSON.stringify(frequency));
+      } catch {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end('{}');
+      }
+      return;
+    }
+
+    if (url === '/api/top-files') {
+      try {
+        const { listRuns, loadDetailedRun } = await import('../../metrics/history.js');
+        const runs = await listRuns(projectRoot);
+        const fileCount: Record<string, number> = {};
+        for (const run of runs.slice(0, 20)) {
+          const detail = await loadDetailedRun(projectRoot, run.id);
+          if (detail?.byFile) {
+            for (const [file, count] of Object.entries(detail.byFile)) {
+              fileCount[file] = (fileCount[file] ?? 0) + count;
+            }
+          }
+        }
+        const sorted = Object.entries(fileCount).sort((a, b) => b[1] - a[1]).slice(0, 20);
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' });
+        res.end(JSON.stringify(sorted));
+      } catch {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end('[]');
+      }
+      return;
+    }
+
     // Serve the HTML page for any other route
     res.writeHead(200, {
       'Content-Type': 'text/html; charset=utf-8',

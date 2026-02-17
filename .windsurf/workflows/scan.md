@@ -10,3 +10,8 @@ Run a full code quality scan and help resolve findings.
 4. If many findings exist, summarize top issues and ask which to dive into
 5. Offer to auto-fix with `/fix` or suppress false positives with `/suppress`
 6. For first-time adoption with many findings, suggest `/baseline`
+
+## Additional options
+
+- Add `--quality-gate` to enforce quality gate thresholds (see `/gate`)
+- Add `--ci github` to output findings as GitHub Actions annotations
