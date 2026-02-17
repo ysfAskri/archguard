@@ -377,17 +377,25 @@ plugins:
 
 Each plugin exports an analyzer class. See [plugin docs](docs/) for details.
 
-## Comparison
+## How it compares
+
+archguardian is not a replacement for ESLint or SonarQube. It solves a different problem: **catching the patterns AI coding tools introduce**, with zero setup friction.
 
 | | archguardian | ESLint | SonarQube |
 |:---|:---:|:---:|:---:|
-| AI-specific code smells | Yes | No | No |
-| Architecture layer enforcement | Yes | No | Partial |
-| Duplicate detection (AST-based) | Yes | No | Yes |
-| Pre-commit hook (zero config) | Yes | Manual | No |
-| Runs in < 1 second | Yes | Depends | No |
-| 8 languages, one tool | Yes | JS/TS only | Yes |
-| Free & open source | Yes | Yes | Paid |
+| AI-specific code smells | **Built-in** (comment ratio, copy-paste in diffs, `as any` overuse, unused imports) | Partial (via `@typescript-eslint`, no AI-specific rules) | No (has "AI Code Assurance" but applies existing rules stricter) |
+| Architecture layer enforcement | **Built-in** | Via plugin ([eslint-plugin-boundaries](https://github.com/javierbrea/eslint-plugin-boundaries)) | Paid editions only, Java-focused |
+| Duplicate detection | **AST structural hashing + Jaccard similarity** | Via plugin ([eslint-plugin-sonarjs](https://github.com/SonarSource/eslint-plugin-sonarjs)) | Token-based CPD (not AST) |
+| Pre-commit hook | **One command** (`npx archguardian init`) | Manual (Husky + lint-staged) | No (CI/CD pipeline tool) |
+| Speed on typical diffs | **< 1 second** | 1-5s (depends on config) | Minutes to tens of minutes |
+| Languages | 8 (TS, JS, Python, Go, Rust, Java, TSX, JSX) | JS/TS core + JSON, CSS, Markdown, HTML | 20+ (Community), 40+ (paid) |
+| AI tool integrations | **6 tools** (Claude Code, Cursor, Copilot, Windsurf, Cline, Aider) | None | SonarLint IDE plugin (free) |
+| Pricing | Free (MIT) | Free (MIT) | Community Build free, Developer/Enterprise paid |
+
+**Use archguardian when** you want a fast, zero-config guardrail purpose-built for AI-assisted development.
+**Use ESLint when** you need deep JavaScript/TypeScript linting with hundreds of configurable rules.
+**Use SonarQube when** you need enterprise-grade code quality across a large org with dashboards, quality gates, and compliance reporting.
+They work well together — archguardian catches what the others miss in the pre-commit stage.
 
 ## Contributing
 
