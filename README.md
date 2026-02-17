@@ -225,67 +225,109 @@ Exit codes: `0` pass, `1` errors found, `2` warnings exceeded threshold, `3` con
 
 ## Use with AI coding tools
 
-archguardian ships with ready-made configurations for all major AI coding assistants. After `npx archguardian init`, your AI tool can scan, fix, and suppress findings using natural language.
+archguardian ships with ready-made slash commands for all major AI coding assistants. After `npx archguardian init`, just type `/scan`, `/fix`, or `/check` in your AI tool.
+
+| Command | What it does |
+|:--------|:-------------|
+| `/scan` | Full project scan, findings grouped by severity |
+| `/check` | Analyze staged changes before committing |
+| `/fix` | Auto-fix unused imports and naming violations |
+| `/baseline` | Snapshot current findings for incremental adoption |
+| `/suppress` | Add inline suppression comments for false positives |
+| `/setup` | Initialize archguardian in a new project |
 
 ### Claude Code
 
-Add to your project's `CLAUDE.md`:
+archguardian includes [skills](https://code.claude.com/docs/en/skills) (`.claude/skills/`) that register as slash commands automatically.
 
-```markdown
-## archguardian
-
-- Run `npx archguardian scan --format json` to analyze the project
-- Run `npx archguardian check --format json` to analyze staged changes before committing
-- Run `npx archguardian fix --dry-run` to preview fixes, then `npx archguardian fix` to apply
-- Run `npx archguardian scan --update-baseline` to snapshot current findings for incremental adoption
-- Add `// archguard-ignore <rule-id>` above a line to suppress a specific rule
+```
+.claude/skills/
+├── scan/SKILL.md        →  /scan
+├── check/SKILL.md       →  /check
+├── fix/SKILL.md         →  /fix
+├── baseline/SKILL.md    →  /baseline
+├── suppress/SKILL.md    →  /suppress
+└── setup/SKILL.md       →  /setup
 ```
 
-Then just ask: *"scan this project"*, *"fix the warnings"*, *"suppress this false positive"*.
+**How it works:** Clone or install archguardian, and the skills are available immediately. Type `/scan` in Claude Code and it runs `npx archguardian scan --format json`, parses findings, explains each one, and offers to fix or suppress.
+
+Skills use [SKILL.md frontmatter](https://code.claude.com/docs/en/skills#frontmatter-reference) with `allowed-tools`, `$ARGUMENTS` substitution, and `description` fields so Claude can also invoke them automatically when relevant.
 
 ### Cursor
 
-Create `.cursor/rules/archguardian.mdc`:
+archguardian includes both [rules](https://docs.cursor.com/context/rules) (`.cursor/rules/`) for background context and [slash commands](https://docs.cursor.com/chat/custom-commands) (`.cursor/commands/`) for invocable actions.
 
-```markdown
----
-description: Scan and fix code quality issues with archguardian
-globs: "**/*"
-alwaysApply: false
----
-
-# archguardian
-
-- Scan: `npx archguardian scan --format json`
-- Check staged: `npx archguardian check --format json`
-- Auto-fix: preview with `npx archguardian fix --dry-run`, apply with `npx archguardian fix`
-- Baseline: `npx archguardian scan --update-baseline` to adopt incrementally
-- Suppress: add `// archguard-ignore <rule-id>` above the line
 ```
+.cursor/
+├── rules/
+│   ├── archguardian.mdc    # Always-on project context
+│   ├── scan.mdc            # Agent-requested scan context
+│   ├── check.mdc           # Agent-requested check context
+│   ├── fix.mdc             # Agent-requested fix context
+│   ├── baseline.mdc        # Agent-requested baseline context
+│   └── suppress.mdc        # Agent-requested suppress context
+└── commands/
+    ├── scan.md              →  /scan
+    ├── check.md             →  /check
+    ├── fix.md               →  /fix
+    ├── baseline.md          →  /baseline
+    ├── suppress.md          →  /suppress
+    └── setup.md             →  /setup
+```
+
+Type `/scan` in Cursor Agent chat to run a full project scan.
 
 ### GitHub Copilot
 
-Create `.github/copilot-instructions.md`:
+archguardian includes [prompt files](https://code.visualstudio.com/docs/copilot/customization/prompt-files) (`.github/prompts/`) that register as slash commands in VS Code.
 
-```markdown
-# archguardian
-
-This project uses archguardian for code quality. Key commands:
-
-- `npx archguardian scan --format json` — full project scan
-- `npx archguardian check --format json` — staged changes only
-- `npx archguardian fix --dry-run` — preview auto-fixes
-- `npx archguardian fix` — apply fixes
-- `npx archguardian scan --update-baseline` — baseline for incremental adoption
-
-Inline suppression: `// archguard-ignore <rule-id>` above the line.
+```
+.github/
+├── copilot-instructions.md      # Always-on project context
+└── prompts/
+    ├── scan.prompt.md            →  /scan
+    ├── check.prompt.md           →  /check
+    ├── fix.prompt.md             →  /fix
+    ├── baseline.prompt.md        →  /baseline
+    └── suppress.prompt.md        →  /suppress
 ```
 
-### Windsurf / Cline / Aider
+Type `/scan` in Copilot Chat to run a full project scan.
 
-Same pattern — drop a rules file in the tool's config directory (`.windsurf/rules/`, `.clinerules/`, or `.aider.conf.yml` pointing to `CLAUDE.md`). See the [config files in this repo](https://github.com/ysfAskri/archguardian/tree/master/.cursor/rules) for ready-made examples.
+### Windsurf
 
-> **Tip**: Use `--format json` when your AI tool runs archguardian. JSON output is structured and easier for the AI to parse, explain, and act on.
+archguardian includes [workflows](https://docs.windsurf.com/windsurf/cascade/workflows) (`.windsurf/workflows/`) and [rules](https://docs.windsurf.com/windsurf/cascade/rules) (`.windsurf/rules/`).
+
+```
+.windsurf/
+├── rules/
+│   └── rules.md                 # Always-on project context
+└── workflows/
+    ├── scan.md                   →  /scan
+    ├── check.md                  →  /check
+    ├── fix.md                    →  /fix
+    ├── baseline.md               →  /baseline
+    ├── suppress.md               →  /suppress
+    └── setup.md                  →  /setup
+```
+
+Type `/scan` in Windsurf Cascade to run a full project scan.
+
+### Cline
+
+archguardian includes [rules](https://docs.cline.bot/features/cline-rules) (`.clinerules/`) for project context. Cline also auto-detects the `.cursor/rules/` files.
+
+### Aider
+
+archguardian works with Aider via the `.aider.conf.yml` config which loads `CLAUDE.md` as read-only context:
+
+```yaml
+read:
+  - CLAUDE.md
+```
+
+> **Tip**: All commands use `--format json` under the hood. JSON output is structured and easier for AI tools to parse, explain, and act on.
 
 ## CI/CD
 
